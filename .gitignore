@@ -31,3 +31,6 @@ Thumbs.db
 
 # Logs (optional - remove if you want to track costs in git)
 logs/
+
+# Git Worktrees
+.worktrees/
