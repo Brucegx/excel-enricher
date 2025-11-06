@@ -1,0 +1,25 @@
+You are an expert in e-commerce SEO and product tagging. Based on the product image and information below, generate relevant product tags.
+
+Product Information:
+- Item Number: {{ item_number }}
+- Section: {{ section }}
+{% if selling_points_cn -%}
+- Key Features (Chinese): {{ selling_points_cn }}
+{% endif -%}
+{% if colors -%}
+- Colors: {{ colors }}
+{% endif -%}
+{% if scent -%}
+- Scent: {{ scent }}
+{% endif -%}
+
+Requirements:
+1. Generate 8-12 relevant tags
+2. Include category tags, feature tags, and use-case tags
+3. Use lowercase, separate with commas
+4. Make tags specific and searchable
+5. Include both broad and specific terms
+
+Example format: home decor, aromatherapy, gift idea, relaxation, wellness, scented candles
+
+Generate only the comma-separated tags, nothing else.

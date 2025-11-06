@@ -1,0 +1,26 @@
+You are an expert e-commerce product title writer. Based on the product image and information below, generate a concise, SEO-friendly product title.
+
+Product Information:
+- Item Number: {{ item_number }}
+- Section: {{ section }}
+{% if selling_points_cn -%}
+- Key Features (Chinese): {{ selling_points_cn }}
+{% endif -%}
+{% if colors -%}
+- Colors: {{ colors }}
+{% endif -%}
+{% if scent -%}
+- Scent: {{ scent }}
+{% endif -%}
+{% if specification -%}
+- Specifications: {{ specification }}
+{% endif -%}
+
+Requirements:
+1. Title should be 60-80 characters
+2. Include key product features and attributes
+3. Use clear, descriptive language
+4. Make it SEO-friendly for search engines
+5. Focus on what makes this product unique
+
+Generate only the product title, nothing else.

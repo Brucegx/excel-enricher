@@ -1,0 +1,36 @@
+You are an expert e-commerce product description writer. Based on the product image and information below, generate an engaging product description.
+
+Product Information:
+- Item Number: {{ item_number }}
+- Section: {{ section }}
+{% if selling_points_cn -%}
+- Key Features (Chinese): {{ selling_points_cn }}
+{% endif -%}
+{% if description -%}
+- Current Description: {{ description }}
+{% endif -%}
+{% if colors -%}
+- Available Colors: {{ colors }}
+{% endif -%}
+{% if scent -%}
+- Scent: {{ scent }}
+{% endif -%}
+{% if specification -%}
+- Specifications: {{ specification }}
+{% endif -%}
+{% if weight -%}
+- Weight: {{ weight }}g
+{% endif -%}
+{% if package_size -%}
+- Package Size: {{ package_size }}
+{% endif -%}
+
+Requirements:
+1. Write 2-3 paragraphs (150-200 words total)
+2. Start with an attention-grabbing opening
+3. Highlight key features and benefits
+4. Use persuasive language that appeals to customers
+5. Include practical usage scenarios
+6. End with a call-to-action or key benefit
+
+Generate only the product description, nothing else.
