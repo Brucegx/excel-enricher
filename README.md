@@ -39,15 +39,17 @@ The app will open in your browser at `http://localhost:8501`
 
 ## Usage
 
-### Step 1: Upload Excel File
+### Step 1: Test Prompts (Lab Tab)
 
-Upload your product Excel file in the sidebar. The file should contain:
-- **Required columns**: `Item#`, `Section`
-- **Optional columns**: `卖点`, `SEO Title Search`, `Item Description`, `Colors`, `Scent`, `Specification L*W*H`, `Weight（g）`, `Package size`
-- **Embedded images**: One image per product row
+**Option A: Use Sample Data** (No upload required!)
+1. Click "📦 Use Sample Data" to load 3 pre-configured sample products
+2. Perfect for testing prompts without preparing files
 
-### Step 2: Test Prompts (Lab Tab)
+**Option B: Upload Your Own File**
+1. Click "📤 Or Upload Your Own Excel File"
+2. Upload a file with the same structure as your production data
 
+**Then:**
 1. Select a sample product from the dropdown
 2. Load an existing prompt template or create a new one
 3. Select models to test (you can compare multiple models side-by-side)
@@ -67,15 +69,16 @@ Upload your product Excel file in the sidebar. The file should contain:
 - `{{ weight }}`
 - `{{ package_size }}`
 
-### Step 3: Batch Processing (Batch Tab)
+### Step 2: Batch Processing (Batch Tab)
 
-1. Select your production prompts for:
+1. **Upload Excel File**: Upload your production Excel file with all products
+2. **Select Prompts**: Choose your production prompts for:
    - Title generation
    - Description generation
    - Tags generation
-2. Click "Run Batch Generation"
-3. Wait for processing to complete (progress bar will show)
-4. Download the enriched Excel file
+3. **Run Batch**: Click "Run Batch Generation"
+4. **Wait**: Progress bar shows processing status
+5. **Download**: Get your enriched Excel file with generated content
 
 The output Excel will have three new columns:
 - `Generated Title`
@@ -99,9 +102,16 @@ excel-enricher/
 ├── services/                   # Backend services
 │   ├── __init__.py
 │   ├── data_service.py        # Excel loading/exporting with images
+│   ├── sample_data_service.py # Sample data loader
 │   ├── prompt_service.py      # Template management
 │   ├── llm_service.py         # LLM API integrations
 │   └── monitoring.py          # Cost calculation and logging
+├── sample_data/               # Pre-loaded sample products
+│   ├── sample_products.pkl    # 3 sample products with images
+│   ├── sample_products.csv    # CSV version (without images)
+│   ├── product_2.png          # Sample images
+│   ├── product_3.png
+│   └── product_4.png
 ├── prompts/                   # Jinja2 template library
 │   ├── title/
 │   │   └── v1.j2

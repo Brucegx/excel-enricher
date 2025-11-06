@@ -2,7 +2,7 @@
 Excel Enricher - Main Streamlit Application
 """
 import streamlit as st
-from services import data_service, prompt_service, llm_service, monitoring
+from services import data_service, prompt_service, llm_service, monitoring, sample_data_service
 import io
 
 
@@ -14,37 +14,26 @@ st.set_page_config(
 )
 
 # Initialize session state
-if 'products' not in st.session_state:
-    st.session_state.products = None
-if 'uploaded_file' not in st.session_state:
-    st.session_state.uploaded_file = None
+if 'lab_products' not in st.session_state:
+    st.session_state.lab_products = None
+if 'lab_file' not in st.session_state:
+    st.session_state.lab_file = None
+if 'batch_products' not in st.session_state:
+    st.session_state.batch_products = None
+if 'batch_file' not in st.session_state:
+    st.session_state.batch_file = None
 if 'enriched_products' not in st.session_state:
     st.session_state.enriched_products = None
+if 'using_sample_data' not in st.session_state:
+    st.session_state.using_sample_data = False
 
 
 def render_sidebar():
-    """Render the sidebar with file upload and cost summary."""
+    """Render the sidebar with cost summary."""
     st.sidebar.title("📊 Excel Enricher")
 
-    # File upload
-    uploaded_file = st.sidebar.file_uploader(
-        "Upload Excel File",
-        type=['xlsx'],
-        help="Upload an Excel file with product data and embedded images"
-    )
-
-    if uploaded_file is not None:
-        # Check if new file was uploaded
-        if st.session_state.uploaded_file is None or uploaded_file.name != st.session_state.uploaded_file.name:
-            st.session_state.uploaded_file = uploaded_file
-            try:
-                # Reset the file pointer
-                uploaded_file.seek(0)
-                st.session_state.products = data_service.load_products(uploaded_file)
-                st.sidebar.success(f"✅ Loaded {len(st.session_state.products)} products")
-            except Exception as e:
-                st.sidebar.error(f"Error loading file: {str(e)}")
-                st.session_state.products = None
+    st.sidebar.info("💡 **Lab Tab**: Test prompts with sample data or upload your own\n\n"
+                    "💡 **Batch Tab**: Upload a file for bulk processing")
 
     # Cost summary
     st.sidebar.markdown("---")
@@ -70,11 +59,58 @@ def render_lab_tab():
     """Render the Lab tab for prompt testing."""
     st.header("🔬 Lab - Test & Save Prompts")
 
-    if st.session_state.products is None:
-        st.info("👈 Please upload an Excel file to get started")
+    # Data source selection
+    st.subheader("Select Data Source")
+
+    col1, col2 = st.columns([1, 1])
+
+    with col1:
+        if sample_data_service.has_sample_data():
+            if st.button("📦 Use Sample Data", type="secondary", use_container_width=True):
+                try:
+                    st.session_state.lab_products = sample_data_service.load_sample_products()
+                    st.session_state.using_sample_data = True
+                    st.success(f"✅ Loaded {len(st.session_state.lab_products)} sample products")
+                    st.rerun()
+                except Exception as e:
+                    st.error(f"Error loading sample data: {str(e)}")
+        else:
+            st.info("No sample data available")
+
+    with col2:
+        uploaded_file = st.file_uploader(
+            "📤 Or Upload Your Own Excel File",
+            type=['xlsx'],
+            help="Upload an Excel file with product data and embedded images",
+            key="lab_file_uploader"
+        )
+
+        if uploaded_file is not None:
+            # Check if new file was uploaded
+            if st.session_state.lab_file is None or uploaded_file.name != st.session_state.lab_file.name:
+                st.session_state.lab_file = uploaded_file
+                try:
+                    uploaded_file.seek(0)
+                    st.session_state.lab_products = data_service.load_products(uploaded_file)
+                    st.session_state.using_sample_data = False
+                    st.success(f"✅ Loaded {len(st.session_state.lab_products)} products from {uploaded_file.name}")
+                except Exception as e:
+                    st.error(f"Error loading file: {str(e)}")
+                    st.session_state.lab_products = None
+
+    if st.session_state.lab_products is None:
+        st.info("👆 Please select sample data or upload an Excel file to get started")
         return
 
-    products = st.session_state.products
+    # Show current data source
+    if st.session_state.using_sample_data:
+        st.info(f"📦 Using sample data ({len(st.session_state.lab_products)} products)")
+    else:
+        st.info(f"📄 Using uploaded file: {st.session_state.lab_file.name if st.session_state.lab_file else 'Unknown'}")
+
+    st.markdown("---")
+
+    products = st.session_state.lab_products
 
     # 1. Select sample product
     product_options = [f"{p.item_number}" for p in products]
@@ -227,16 +263,41 @@ def render_batch_tab():
     """Render the Batch tab for bulk processing."""
     st.header("🏭 Batch - Generate & Download")
 
-    if st.session_state.products is None:
-        st.info("👈 Please upload an Excel file to get started")
+    # File upload for batch processing
+    st.subheader("1. Upload Excel File for Batch Processing")
+
+    uploaded_file = st.file_uploader(
+        "📤 Upload Excel File",
+        type=['xlsx'],
+        help="Upload an Excel file with product data and embedded images for batch processing",
+        key="batch_file_uploader"
+    )
+
+    if uploaded_file is not None:
+        # Check if new file was uploaded
+        if st.session_state.batch_file is None or uploaded_file.name != st.session_state.batch_file.name:
+            st.session_state.batch_file = uploaded_file
+            try:
+                uploaded_file.seek(0)
+                st.session_state.batch_products = data_service.load_products(uploaded_file)
+                st.success(f"✅ Loaded {len(st.session_state.batch_products)} products from {uploaded_file.name}")
+                # Reset enriched products when new file is uploaded
+                st.session_state.enriched_products = None
+            except Exception as e:
+                st.error(f"Error loading file: {str(e)}")
+                st.session_state.batch_products = None
+
+    if st.session_state.batch_products is None:
+        st.info("👆 Please upload an Excel file to get started")
         return
 
-    products = st.session_state.products
+    products = st.session_state.batch_products
 
     st.write(f"**{len(products)} products** loaded and ready for processing")
+    st.markdown("---")
 
     # Select prompts for each category
-    st.subheader("1. Select Prompts")
+    st.subheader("2. Select Prompts")
 
     col1, col2, col3 = st.columns(3)
 
@@ -278,7 +339,7 @@ def render_batch_tab():
 
     # Run batch
     st.markdown("---")
-    st.subheader("2. Run Batch Generation")
+    st.subheader("3. Run Batch Generation")
 
     can_run = title_prompts and selected_title and desc_prompts and selected_desc and tag_prompts and selected_tags
 
@@ -352,14 +413,14 @@ def render_batch_tab():
     # Download button
     if st.session_state.enriched_products:
         st.markdown("---")
-        st.subheader("3. Download Enriched Excel")
+        st.subheader("4. Download Enriched Excel")
 
         try:
             # Reset file pointer for reading
-            st.session_state.uploaded_file.seek(0)
+            st.session_state.batch_file.seek(0)
             enriched_excel = data_service.export_enriched_excel(
                 st.session_state.enriched_products,
-                st.session_state.uploaded_file
+                st.session_state.batch_file
             )
 
             st.download_button(

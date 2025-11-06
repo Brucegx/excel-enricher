@@ -98,7 +98,7 @@ def render_prompt(template_string: str, product) -> str:
     return template.render(**context)
 
 
-def get_prompt_config(prompt_path: str) -> Optional[Dict[str, str]]:
+def get_prompt_config(prompt_path: str) -> Dict[str, str]:
     """
     Get the saved model configuration for a prompt template.
 
@@ -109,12 +109,13 @@ def get_prompt_config(prompt_path: str) -> Optional[Dict[str, str]]:
         prompt_path: Relative path to prompt file (e.g., "title/v1.j2")
 
     Returns:
-        Dictionary with 'model' key if config exists, None otherwise
+        Dictionary with 'model' key (defaults to 'claude-sonnet-4' if no config exists)
     """
     config_path = PROMPTS_DIR / f"{prompt_path}.config"
 
     if not config_path.exists():
-        return None
+        # Default to Claude Sonnet 4
+        return {'model': 'claude-sonnet-4'}
 
     # Simple format: just the model name on first line
     model = config_path.read_text(encoding='utf-8').strip()
