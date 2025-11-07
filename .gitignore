@@ -1,5 +1,11 @@
 # API Keys and Secrets
 .streamlit/secrets.toml
+.env
+
+# Output files
+output/
+*.json
+*.xlsx
 
 # Python
 __pycache__/
